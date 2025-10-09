@@ -34,7 +34,7 @@ HEADERS = {
     "X-Check-Flink": "1.0"
 }
 
-RAW_HEADERS = {  # 仅用于获取原始数据，防止接收到Accept-Language等头部导致乱码
+RAW_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -45,9 +45,9 @@ RAW_HEADERS = {  # 仅用于获取原始数据，防止接收到Accept-Language�
 }
 
 PROXY_URL_TEMPLATE = f"{os.getenv('PROXY_URL')}{{}}" if os.getenv("PROXY_URL") else None
-SOURCE_URL = os.getenv("SOURCE_URL", "https://lxb-blog.pages.dev/flink_count.json")  # 默认本地文件
+SOURCE_URL = os.getenv("SOURCE_URL", "https://lxb-blog.pages.dev/flink_count.json")
 RESULT_FILE = "./result.json"
-AUTHOR_URL = os.getenv("AUTHOR_URL", "cf.lxb.icu")  # 作者URL，用于检测反链
+AUTHOR_URL = os.getenv("AUTHOR_URL", "cf.lxb.icu")
 api_request_queue = Queue()
 
 if PROXY_URL_TEMPLATE:
@@ -61,7 +61,6 @@ else:
     logging.warning("未提供作者 URL，将跳过友链页面检测")
 
 def request_url(session, url, headers=HEADERS, desc="", timeout=15, verify=True, **kwargs):
-    """统一封装的 GET 请求函数"""
     try:
         start_time = time.time()
         response = session.get(url, headers=headers, timeout=timeout, verify=verify, **kwargs)
@@ -88,7 +87,6 @@ def is_url(path):
     return urlparse(path).scheme in ("http", "https")
 
 def check_author_link_in_page(session, linkpage_url):
-    """检测友链页面是否包含作者链接"""
     if not AUTHOR_URL:
         return False
     
@@ -96,41 +94,32 @@ def check_author_link_in_page(session, linkpage_url):
     if not response:
         return False
     
-    # 处理作者URL，确保有协议号
     author_url = AUTHOR_URL
     if not author_url.startswith(('http://', 'https://')):
         author_url = 'https://' + author_url
     
-    # 生成各种可能的URL变体
-    author_variants = [
+    author_variants = list(set([
         author_url,
         author_url.replace('https://', 'http://'),
         author_url.replace('https://', '//'),
         author_url.replace('https://', ''),
-        AUTHOR_URL,  # 原始值（可能没有协议号）
+        AUTHOR_URL,
         '//' + AUTHOR_URL,
         'https://' + AUTHOR_URL,
         'http://' + AUTHOR_URL
-    ]
-    
-    # 去重
-    author_variants = list(set(author_variants))
+    ]))
     
     content = response.text
     found_in_href = False
     found_as_text = False
     
-    # 检查每种变体
     for variant in author_variants:
-        # 检查是否在href属性中
         if f'href="{variant}"' in content or \
            f"href='{variant}'" in content or \
            f'href="{variant}/"' in content or \
            f"href='{variant}/'" in content:
             found_in_href = True
             break
-        
-        # 检查是否作为文本出现
         if variant in content:
             found_as_text = True
     
@@ -172,7 +161,6 @@ def fetch_origin_data(origin_path):
     try:
         rows = list(csv.reader(content.splitlines()))
         logging.info("成功解析 CSV 格式数据")
-        # 支持新的CSV格式：name, link, linkpage
         result = []
         for row in rows:
             if len(row) >= 2:
@@ -196,13 +184,10 @@ def check_link(item, session):
         response, latency = request_url(session, url, desc=method)
         if response and response.status_code == 200:
             logging.info(f"[{method}] 成功访问: {link} ，延迟 {latency} 秒")
-            
-            # 如果链接可达且有linkpage字段，检测友链页面
             if 'linkpage' in item and item['linkpage'] and AUTHOR_URL:
                 has_author_link = check_author_link_in_page(session, item['linkpage'])
-            
             return item, latency, has_author_link
-        elif response and response.status_code != 200:
+        elif response:
             logging.warning(f"[{method}] 状态码异常: {link} -> {response.status_code}")
         else:
             logging.warning(f"[{method}] 请求失败，Response 无效: {link}")
@@ -226,8 +211,6 @@ def handle_api_requests(session):
                 if int(res_json.get("code")) == 200 and int(res_json.get("data")) == 200:
                     logging.info(f"[API] 成功访问: {link} ，状态码 200")
                     item['latency'] = latency
-                    
-                    # 如果API检测成功且有linkpage字段，检测友链页面
                     if 'linkpage' in item and item['linkpage'] and AUTHOR_URL:
                         has_author_link = check_author_link_in_page(session, item['linkpage'])
                 else:
@@ -282,8 +265,10 @@ def main():
                     'link': link,
                     'latency': latency,
                     'fail_count': fail_count,
-                    'has_author_link': has_author_link,  # 新增字段
-                    'linkpage': item.get('linkpage', '')  # 保留linkpage信息
+                    'has_author_link': has_author_link,
+                    'linkpage': item.get('linkpage', ''),
+                    'descr': item.get('descr', ''),
+                    'avatar': item.get('avatar', '')
                 })
             except Exception as e:
                 logging.error(f"处理链接时发生错误: {item}, 错误: {e}")
@@ -298,8 +283,8 @@ def main():
             "accessible_count": accessible,
             "inaccessible_count": total - accessible,
             "total_count": total,
-            "has_author_link_count": has_author_count,  # 新增统计
-            "author_url": AUTHOR_URL,  # 记录使用的作者URL
+            "has_author_link_count": has_author_count,
+            "author_url": AUTHOR_URL,
             "link_status": link_status
         }
 

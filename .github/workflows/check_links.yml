@@ -14,15 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # -----------------------------
-    # 拉取最新仓库
-    # -----------------------------
     - name: Pull latest repository
       uses: actions/checkout@v4
 
-    # -----------------------------
-    # 缓存 pip 包
-    # -----------------------------
     - name: Cache pip packages
       uses: actions/cache@v4
       with:
@@ -31,79 +25,54 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
 
-    # -----------------------------
-    # 安装 Python
-    # -----------------------------
-    - name: Setup Python
+    - name: Install python
       uses: actions/setup-python@v5
       with:
         python-version: '3.12'
 
-    # -----------------------------
-    # 安装依赖
-    # -----------------------------
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+    
+    - name: Download result.json artifact
+      uses: dawidd6/action-download-artifact@v6
+      with:
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        branch: main
+        name: 'result_json'
+        path: './'
+        if_no_artifact_found: warn
 
-    # -----------------------------
-    # 调试：检查 projects.json 是否可访问
-    # -----------------------------
-    - name: Debug: fetch projects.json
-      run: |
-        echo "DEBUG: 检查 projects.json 内容"
-        curl -s https://lxb-blog.pages.dev/projects.json | head -n 20
-
-    # -----------------------------
-    # 运行 main.py
-    # -----------------------------
-    - name: Run main.py
+    - name: Run Python script to check frined-links
       env:
         PROXY_URL: ${{ secrets.PROXY_URL }}
         SOURCE_URL: ${{ secrets.SOURCE_URL }}
-      run: python main.py
+      run: |
+        echo "SOURCE_URL: $SOURCE_URL"
+        python main.py
 
-    # -----------------------------
-    # 运行 main1.py
-    # -----------------------------
-    - name: Run main1.py
-      env:
-        SOURCE_URL: https://lxb-blog.pages.dev/projects.json
-      run: python main1.py
-
-    # -----------------------------
-    # 上传 JSON artifacts
-    # -----------------------------
-    - name: Upload JSON artifacts
+    - name: Upload result.json as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: 'json_artifacts'
-        path: |
-          ./result.json
-          ./projects_status.json
+        name: 'result_json'
+        path: './result.json'
         retention-days: 10
 
-    # -----------------------------
-    # 推送 result.json 和 projects_status.json 到 static/
-    # -----------------------------
-    - name: Commit and push JSON files
+    - name: Configure git
       run: |
-        mkdir -p static
-        cp ./result.json ./projects_status.json static/
-        cd static
-        if [ ! -d ".git" ]; then
-          git init
-          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git checkout -b page
-        fi
-        git add result.json projects_status.json
-        git commit -m "⏱️GitHub Action每日更新 result.json & projects_status.json" || echo "No changes to commit"
-        git push --force origin page
+        git config --global user.email "actions@github.com"
+        git config --global user.name "GitHub Actions"
 
-    # -----------------------------
-    # 删除旧 workflow runs
-    # -----------------------------
+    - name: Commit and push
+      run: |
+        cp ./result.json static/
+        cd static
+        git init
+        git add .
+        git commit -m "⏱️GitHub Action每日定时更新"
+        git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
+    
     - name: Delete Workflow Runs
       uses: Mattraks/delete-workflow-runs@v2
       with:

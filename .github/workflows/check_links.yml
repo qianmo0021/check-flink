@@ -53,7 +53,7 @@ jobs:
       run: python main.py
 
     # 运行 main1.py
-    - name: Run mian1.py
+    - name: Run main1.py
       run: python main1.py
 
     # 上传 artifacts

@@ -35,9 +35,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # -----------------------------
     # 下载上次 result.json artifact
-    # -----------------------------
     - name: Download result.json artifact
       uses: dawidd6/action-download-artifact@v6
       with:
@@ -47,66 +45,41 @@ jobs:
         path: './'
         if_no_artifact_found: warn
 
-    # -----------------------------
-    # 运行 main.py，生成 result.json
-    # -----------------------------
-    - name: Run Python script to check friend-links
+    # 运行 main.py
+    - name: Run main.py
       env:
         PROXY_URL: ${{ secrets.PROXY_URL }}
         SOURCE_URL: ${{ secrets.SOURCE_URL }}
-      run: |
-        echo "SOURCE_URL: $SOURCE_URL"
-        python main.py
+      run: python main.py
 
-    # -----------------------------
-    # 上传 result.json artifact
-    # -----------------------------
-    - name: Upload result.json as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: 'result_json'
-        path: './result.json'
-        retention-days: 10
-
-    # -----------------------------
-    # 推送 result.json 到 static/
-    # -----------------------------
-    - name: Commit and push result.json
-      run: |
-        cp ./result.json static/
-        cd static
-        git init
-        git add result.json
-        git commit -m "⏱️GitHub Action每日更新 result.json"
-        git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
-
-    # -----------------------------
-    # 运行 main1.py，生成 projects_status.json
-    # -----------------------------
+    # 运行 main1.py
     - name: Run main1.py
       run: python main1.py
 
-    # 上传 projects_status.json artifact
-    - name: Upload projects_status.json as artifact
+    # 上传 artifacts
+    - name: Upload JSON artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: 'projects_status_json'
-        path: './projects_status.json'
+        name: 'json_artifacts'
+        path: |
+          ./result.json
+          ./projects_status.json
         retention-days: 10
 
-    # 推送 projects_status.json 到 static/
-    - name: Commit and push projects_status.json
+    # 一次性推送两个 JSON 文件到 static/
+    - name: Commit and push JSON files
       run: |
-        cp ./projects_status.json static/
+        cp ./result.json ./projects_status.json static/
         cd static
+        rm -rf .git
         git init
-        git add projects_status.json
-        git commit -m "⏱️GitHub Action每日更新 projects_status.json"
-        git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
+        git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        git checkout -b page
+        git add result.json projects_status.json
+        git commit -m "⏱️GitHub Action每日更新 result.json & projects_status.json"
+        git push --force origin page
 
-    # -----------------------------
     # 删除老的 workflow runs
-    # -----------------------------
     - name: Delete Workflow Runs
       uses: Mattraks/delete-workflow-runs@v2
       with:

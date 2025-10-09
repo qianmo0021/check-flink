@@ -48,42 +48,60 @@ jobs:
         if_no_artifact_found: warn
 
     # -----------------------------
-    # 运行 main.py
+    # 运行 main.py，生成 result.json
     # -----------------------------
-    - name: Run Python script main.py
+    - name: Run Python script to check friend-links
       env:
         PROXY_URL: ${{ secrets.PROXY_URL }}
         SOURCE_URL: ${{ secrets.SOURCE_URL }}
-      run: python main.py
+      run: |
+        echo "SOURCE_URL: $SOURCE_URL"
+        python main.py
 
     # -----------------------------
-    # 运行 main1.py
+    # 上传 result.json artifact
     # -----------------------------
-    - name: Run Python script main1.py
-      run: python main1.py
-
-    # -----------------------------
-    # 上传 artifact
-    # -----------------------------
-    - name: Upload artifacts
+    - name: Upload result.json as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: 'json_artifacts'
-        path: |
-          ./result.json
-          ./projects_status.json
+        name: 'result_json'
+        path: './result.json'
         retention-days: 10
 
     # -----------------------------
-    # 一次性推送两个 JSON 到 static/
+    # 推送 result.json 到 static/
     # -----------------------------
-    - name: Commit and push JSON files
+    - name: Commit and push result.json
       run: |
-        cp ./result.json ./projects_status.json static/
+        cp ./result.json static/
         cd static
         git init
-        git add result.json projects_status.json
-        git commit -m "⏱️GitHub Action每日更新 result.json & projects_status.json"
+        git add result.json
+        git commit -m "⏱️GitHub Action每日更新 result.json"
+        git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
+
+    # -----------------------------
+    # 运行 main1.py，生成 projects_status.json
+    # -----------------------------
+    - name: Run main1.py
+      run: python main1.py
+
+    # 上传 projects_status.json artifact
+    - name: Upload projects_status.json as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: 'projects_status_json'
+        path: './projects_status.json'
+        retention-days: 10
+
+    # 推送 projects_status.json 到 static/
+    - name: Commit and push projects_status.json
+      run: |
+        cp ./projects_status.json static/
+        cd static
+        git init
+        git add projects_status.json
+        git commit -m "⏱️GitHub Action每日更新 projects_status.json"
         git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
 
     # -----------------------------

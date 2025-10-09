@@ -45,6 +45,14 @@ jobs:
         path: './'
         if_no_artifact_found: warn
 
+    # -----------------------------
+    # 调试：打印 projects.json 内容
+    # -----------------------------
+    - name: Debug: print projects.json content
+      run: |
+        echo "DEBUG: 检查 projects.json 是否可访问"
+        curl -s https://lxb-blog.pages.dev/projects.json | head -n 20
+
     # 运行 main.py
     - name: Run main.py
       env:

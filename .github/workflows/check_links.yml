@@ -34,7 +34,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
+
+    # -----------------------------
+    # 下载上次 result.json artifact
+    # -----------------------------
     - name: Download result.json artifact
       uses: dawidd6/action-download-artifact@v6
       with:
@@ -44,35 +47,48 @@ jobs:
         path: './'
         if_no_artifact_found: warn
 
-    - name: Run Python script to check frined-links
+    # -----------------------------
+    # 运行 main.py
+    # -----------------------------
+    - name: Run Python script main.py
       env:
         PROXY_URL: ${{ secrets.PROXY_URL }}
         SOURCE_URL: ${{ secrets.SOURCE_URL }}
-      run: |
-        echo "SOURCE_URL: $SOURCE_URL"
-        python main.py
+      run: python main.py
 
-    - name: Upload result.json as artifact
+    # -----------------------------
+    # 运行 main1.py
+    # -----------------------------
+    - name: Run Python script main1.py
+      run: python main1.py
+
+    # -----------------------------
+    # 上传 artifact
+    # -----------------------------
+    - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: 'result_json'
-        path: './result.json'
+        name: 'json_artifacts'
+        path: |
+          ./result.json
+          ./projects_status.json
         retention-days: 10
 
-    - name: Configure git
+    # -----------------------------
+    # 一次性推送两个 JSON 到 static/
+    # -----------------------------
+    - name: Commit and push JSON files
       run: |
-        git config --global user.email "actions@github.com"
-        git config --global user.name "GitHub Actions"
-
-    - name: Commit and push
-      run: |
-        cp ./result.json static/
+        cp ./result.json ./projects_status.json static/
         cd static
         git init
-        git add .
-        git commit -m "⏱️GitHub Action每日定时更新"
+        git add result.json projects_status.json
+        git commit -m "⏱️GitHub Action每日更新 result.json & projects_status.json"
         git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:page
-    
+
+    # -----------------------------
+    # 删除老的 workflow runs
+    # -----------------------------
     - name: Delete Workflow Runs
       uses: Mattraks/delete-workflow-runs@v2
       with:

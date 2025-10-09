@@ -37,7 +37,7 @@ RAW_HEADERS = {
 # 配置
 # ---------------------------
 SOURCE_URL = "https://lxb-blog.pages.dev/projects.json"
-RESULT_FILE = "./projects_status.json"  # <-- 输出文件名修改这里
+RESULT_FILE = "./projects_status.json"  # 输出文件
 
 # ---------------------------
 # 工具函数
@@ -47,7 +47,14 @@ def fetch_projects():
         r = requests.get(SOURCE_URL, headers=HEADERS, timeout=10)
         r.raise_for_status()
         data = r.json()
-        return data.get("projects", [])
+        # 支持数组或对象格式
+        if isinstance(data, list):
+            return data
+        elif isinstance(data, dict):
+            return data.get("projects", [])
+        else:
+            logging.error("❌ 返回格式不对")
+            return []
     except Exception as e:
         logging.error(f"❌ 获取项目数据失败: {e}")
         return []
@@ -58,17 +65,17 @@ def check_url(url):
         r = requests.head(url, headers=HEADERS, timeout=10, allow_redirects=True)
         code = r.status_code
         if code == 200:
-            return "✅ 200 正常 点击访问进行尝试"
+            return f"✅ 200 点击访问进行尝试"
         elif code == 403:
-            return "⚠️ 403 禁止访问 点击访问进行尝试"
+            return f"✅ 403 点击访问进行尝试"
         elif code == 404:
-            return "❌ 404 未找到"
+            return f"❌ 404"
         elif code == 500:
-            return "⚠️ 500 服务器错误 点击访问进行尝试"
+            return f"✅ 500 点击访问进行尝试"
         elif code == 503:
-            return "⚠️ 503 服务不可用 点击访问进行尝试"
+            return f"✅ 503 点击访问进行尝试"
         else:
-            return f"⚠️ {code} 状态异常 点击访问进行尝试"
+            return f"✅ {code} 点击访问进行尝试"
     except Exception as e:
         logging.warning(f"❌ 无法访问 {url}，错误: {e}")
         return "❌ 无法访问"
@@ -83,7 +90,6 @@ def main():
         return
 
     new_projects = []
-
     for p in projects:
         url = p.get("url")
         name = p.get("name", "")
@@ -99,8 +105,7 @@ def main():
             "created": created
         })
 
-    result = {"projects": new_projects}
-
+    result = {"projects": new_projects, "logs": [f"✅ {len(new_projects)} 个项目检测完成"]}
     with open(RESULT_FILE, "w", encoding="utf-8") as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 

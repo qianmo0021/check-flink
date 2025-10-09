@@ -45,7 +45,7 @@ RAW_HEADERS = {  # 仅用于获取原始数据，防止接收到Accept-Language�
 }
 
 PROXY_URL_TEMPLATE = f"{os.getenv('PROXY_URL')}{{}}" if os.getenv("PROXY_URL") else None
-SOURCE_URL = os.getenv("SOURCE_URL", "https://raw.githubusercontent.com/qianmo0021/link/refs/heads/main/flink_count.json")  # 默认本地文件
+SOURCE_URL = os.getenv("SOURCE_URL", "https://cf.lxb.icu/flink_count.json")  # 默认本地文件
 RESULT_FILE = "./result.json"
 AUTHOR_URL = os.getenv("AUTHOR_URL", "cf.lxb.icu")  # 作者URL，用于检测反链
 api_request_queue = Queue()

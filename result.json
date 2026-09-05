@@ -1,0 +1,130 @@
+{
+    "timestamp": "2026-09-05 23:52:16",
+    "accessible_count": 10,
+    "inaccessible_count": 2,
+    "total_count": 12,
+    "has_author_link_count": 1,
+    "author_url": "cf.lxb.icu",
+    "link_status": [
+        {
+            "name": "李小白",
+            "link": "https://lxb-blog.pages.dev",
+            "latency": 0.06,
+            "fail_count": 0,
+            "has_author_link": true,
+            "linkpage": "https://lxb-blog.pages.dev/link",
+            "descr": "名中带白，不是天真。生性爱笑，非因无忧。",
+            "avatar": "https://cf.lxb.icu/img/logos.svg"
+        },
+        {
+            "name": "清羽飞扬",
+            "link": "https://blog.liushen.fun/",
+            "latency": 0.33,
+            "fail_count": 0,
+            "has_author_link": false,
+            "linkpage": "https://blog.liushen.fun/link",
+            "descr": "柳影曳曳，清酒孤灯，扬笔撒墨，心境如霜",
+            "avatar": "https://blog.liushen.fun/info/avatar.ico"
+        },
+        {
+            "name": "anzhiyu主题",
+            "link": "https://hexo.anheyu.com/",
+            "latency": 0.92,
+            "fail_count": 0,
+            "has_author_link": false,
+            "linkpage": "https://hexo.anheyu.com/link",
+            "descr": "生活明朗，万物可爱",
+            "avatar": "https://npm.elemecdn.com/anzhiyu-blog-static@1.0.4/img/avatar.jpg"
+        },
+        {
+            "name": "梦爱吃鱼",
+            "link": "https://blog.bsgun.cn/",
+            "latency": 1.38,
+            "fail_count": 0,
+            "has_author_link": false,
+            "linkpage": "https://blog.bsgun.cn/link",
+            "descr": "不负心灵，不负今生。",
+            "avatar": "https://oss-cdn.bsgun.cn/logo/avatar.256.png"
+        },
+        {
+            "name": "东方月初",
+            "link": "https://blog.biuxin.com/",
+            "latency": 1.16,
+            "fail_count": 0,
+            "has_author_link": false,
+            "linkpage": "https://blog.biuxin.com/links",
+            "descr": "分享有趣但又无聊的东西。",
+            "avatar": "https://x.xinb.de/i/2024/09/19/040857.webp"
+        },
+        {
+            "name": "陆小启",
+            "link": "https://blog.luxq.space",
+            "latency": -1,
+            "fail_count": 349,
+            "has_author_link": false,
+            "linkpage": "https://blog.luxq.space/link",
+            "descr": "往者不谏，来者可追",
+            "avatar": "https://bu.dusays.com/2025/03/14/67d3fbedaa1c6.webp"
+        },
+        {
+            "name": "煮雪话河山`Blog",
+            "link": "https://blog.cent1pedee.top/",
+            "latency": -1,
+            "fail_count": 178,
+            "has_author_link": false,
+            "linkpage": "https://blog.cent1pedee.top/link",
+            "descr": "如月之恒，如日之升。",
+            "avatar": "https://img.cent1pedee.top/img/wechat.jpg"
+        },
+        {
+            "name": "AOKAOKAのblog",
+            "link": "https://www.aokaoka.top/",
+            "latency": 1.05,
+            "fail_count": 0,
+            "has_author_link": false,
+            "linkpage": "https://www.aokaoka.top/link",
+            "descr": "不经一事，不长一智。",
+            "avatar": "https://www.aokaoka.top/img/AOKAOKA.jpg"
+        },
+        {
+            "name": "琅環书生",
+            "link": "https://blog.chn.us.kg",
+            "latency": 0.36,
+            "fail_count": 0,
+            "has_author_link": false,
+            "linkpage": "https://blog.chn.us.kg/link",
+            "descr": "无远弗届，皆有可能",
+            "avatar": "https://images.chn.us.kg/hexo/avatar.webp"
+        },
+        {
+            "name": "友链检测",
+            "link": "https://link.lxb.icu/",
+            "latency": 3.46,
+            "fail_count": 0,
+            "has_author_link": false,
+            "linkpage": "https://link.lxb.icu/link",
+            "descr": "友链检测页面",
+            "avatar": "https://cf.lxb.icu/img/logos.svg"
+        },
+        {
+            "name": "Hexo官网",
+            "link": "https://hexo.io/zh-cn/",
+            "latency": 0.18,
+            "fail_count": 0,
+            "has_author_link": false,
+            "linkpage": "https://hexo.io/zh-cn/link",
+            "descr": "快速、简洁且高效的博客框架",
+            "avatar": "https://p.liiiu.cn/i/2024/04/07/66124225b85c1.png"
+        },
+        {
+            "name": "github",
+            "link": "https://github.com/",
+            "latency": 0.04,
+            "fail_count": 0,
+            "has_author_link": false,
+            "linkpage": "https://github.com/link",
+            "descr": "世界最大的代码托管平台",
+            "avatar": "https://p.liiiu.cn/i/2024/03/31/66097e8e6da00.png"
+        }
+    ]
+}
